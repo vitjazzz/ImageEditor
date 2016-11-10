@@ -1,14 +1,17 @@
 package com.vitja.forms;
 
-import com.vitja.ImageController;
+import com.vitja.client_server.Client;
+import com.vitja.client_server.NetworkConnection;
+import com.vitja.client_server.Server;
+import com.vitja.controllers.ImageController;
+import com.vitja.facade.FacadeImageHelper;
 import com.vitja.states.CutState;
 import com.vitja.states.ResizeState;
 import com.vitja.states.RotateState;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
@@ -25,8 +28,6 @@ import org.apache.log4j.Logger;
  * Created by Viktor on 25.09.2016.
  */
 public class Controller implements Initializable{
-    final static Logger logger = Logger.getLogger(Controller.class);
-
     @FXML
     private Button chooseBtn;
 
@@ -48,116 +49,81 @@ public class Controller implements Initializable{
     @FXML
     private Button effectsBtn;
 
-    private Stage primaryStage;
+    @FXML
+    private TextField textField;
 
-    private ImageController imageController;
+    @FXML
+    private TextArea textArea;
 
-    private ImageView imageView;
+    private FacadeImageHelper facadeImageHelper;
 
-    public Stage getPrimaryStage() {
-        return primaryStage;
-    }
+    private boolean isServer = false;
 
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-    }
+    private NetworkConnection connection = isServer ? createServer() : createClient();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        try {
+            connection.startConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        assert chooseBtn != null : "fx:id=\"myButton\" was not injected: check your FXML file 'simple.fxml'.";
+        textField.setOnAction(event -> {
+            String message = isServer ? "Server: " : "Client: ";
+            message += textField.getText();
+            textField.clear();
 
-        assert anchorPane != null : "anchor pane was not injected";
-
-        imageController = new ImageController();
-
-        chooseBtn.setOnAction(event -> chooseImageByFileChooser());
-
-        resizeBtn.setOnAction(event -> {
-            if(imageController.getCurrentState() != null){
-                imageController.getCurrentState().removeStateEvents();
+            try {
+                connection.send(message);
+                textArea.appendText(message + "\n");
+            } catch (Exception e) {
+                textArea.appendText("Failed to send\n");
             }
-            imageController.setCurrentState(new ResizeState(mainImagePane, imageView));
         });
 
-        cutBtn.setOnAction(event -> {
-            if(imageController.getCurrentState() != null){
-                imageController.getCurrentState().removeStateEvents();
-            }
-            imageController.setCurrentState(new CutState(mainImagePane, imageView));
-        });
+        facadeImageHelper = new FacadeImageHelper(mainImagePane);
 
-        rotateBtn.setOnAction(event -> {
-            if(imageController.getCurrentState() != null){
-                imageController.getCurrentState().removeStateEvents();
-            }
-            imageController.setCurrentState(new RotateState(mainImagePane, imageView));
-        });
+        chooseBtn.setOnAction(event -> facadeImageHelper.chooseImageByFileChooser(getStage(), mainImagePane));
+
+        resizeBtn.setOnAction(event -> facadeImageHelper.doResizeButtonAction(mainImagePane));
+
+        cutBtn.setOnAction(event -> facadeImageHelper.doCutButtonAction(mainImagePane));
+
+        rotateBtn.setOnAction(event -> facadeImageHelper.doCutButtonAction(mainImagePane));
 
         anchorPane.setOnKeyPressed(event -> {
             if(event.isControlDown() && event.getCode() == KeyCode.Z){
-                logger.info("Ctrl + Z pressed.");
-                imageController.reverseAction();
+                facadeImageHelper.undoAction();
             }
         });
 
-        anchorPane.setOnMouseClicked(event -> {
-            if(imageController.getCurrentState()!= null && imageController.getCurrentState().getImageView() != null){
-                imageView = imageController.getCurrentState().getImageView();
+        anchorPane.setOnMouseClicked(event -> facadeImageHelper.reloadImageOnPane(mainImagePane));
+    }
 
-                Pane pane = new Pane();
-                pane.getChildren().add(imageView);
-                mainImagePane.setContent(pane);
-            }
+    public void closeConnection() throws Exception {
+        connection.closeConnection();
+    }
+
+    private Server createServer(){
+        return new Server(55555, data -> {
+            Platform.runLater(() -> {
+                textArea.appendText(data.toString() + "\n");
+            });
         });
     }
 
-    private void showErrorMessege(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-
-        alert.showAndWait();
-    }
-
-    private void chooseImageByFileChooser(){
-        try {
-            FileChooser fileChooser = new FileChooser();
-            configureFileChooser(fileChooser);
-
-            Stage stage = getStage();
-
-            imageController.setImageFile(fileChooser.showOpenDialog(stage));
-
-            addImageToPane();
-        } catch (Exception ex){
-            showErrorMessege(ex.getMessage());
-        }
-    }
-
-    private void addImageToPane(){
-        imageView = new ImageView();
-        imageView.setImage(imageController.getImage());
-
-        Pane pane = new Pane();
-        pane.getChildren().add(imageView);
-        mainImagePane.setContent(pane);
+    private Client createClient(){
+        return new Client(55555, "127.0.0.1", data -> {
+            Platform.runLater(() -> {
+                textArea.appendText(data.toString() + "\n");
+            });
+        });
     }
 
     private Stage getStage(){
         return (Stage) anchorPane.getScene().getWindow();
     }
 
-    private void configureFileChooser(FileChooser fileChooser) {
-        fileChooser.setTitle("Open Resource File");
 
-        if(imageController.getImageFile() != null){
-            String imagePath = imageController.getImageFile().getPath();
-            String initialDirectory = imagePath.substring(0, imagePath.lastIndexOf(imageController.getImageFile().getName()));
-            logger.info(initialDirectory);
-            fileChooser.setInitialDirectory(new File(initialDirectory));
-        }
-    }
 }

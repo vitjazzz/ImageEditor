@@ -1,6 +1,5 @@
 package com.vitja.states;
 
-import com.vitja.State;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 

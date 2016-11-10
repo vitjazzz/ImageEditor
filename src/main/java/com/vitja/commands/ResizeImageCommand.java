@@ -1,6 +1,7 @@
 package com.vitja.commands;
 
-import com.vitja.ImageController;
+import com.vitja.controllers.ImageController;
+import com.vitja.memento.CommandOriginator;
 import com.vitja.states.ResizeState;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -22,14 +23,21 @@ public class ResizeImageCommand implements Command {
     }
 
     @Override
-    public void execute() {
+    public ImageView execute() {
         logger.info("Resized image.");
-        if(ImageController.commandStack.empty() || ImageController.commandStack.peek().getClass() != this.getClass()){
-            MouseEvent tempMouseEvent = new MouseEvent(null, imageView.getImage().getWidth(), imageView.getImage().getHeight(), 0, 0, null, 1, true, true, true, true, true, true, true, true, true, true, null);
-            ImageController.commandStack.push(new ResizeImageCommand(imageView, tempMouseEvent));
-            logger.info(imageView.getFitWidth() + "   " + imageView.getFitHeight());
-        }
-        ResizeState.resizeImage(mouseEvent, imageView);
+
+        ImageView imageView1 = new ImageView(imageView.getImage());
+        //ResizeState.resizeImage(mouseEvent, imageView);
+
+        imageView1.setFitHeight(mouseEvent.getY());
+        imageView1.setFitWidth(mouseEvent.getX());
+
+        return imageView1;
         //imageView.setImage(imageView.snapshot(null, null));
+    }
+
+    @Override
+    public ImageView getInitialImageView() {
+        return imageView;
     }
 }

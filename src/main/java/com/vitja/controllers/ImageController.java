@@ -1,6 +1,9 @@
-package com.vitja;
+package com.vitja.controllers;
 
+import com.vitja.states.State;
 import com.vitja.commands.Command;
+import com.vitja.memento.CareTaker;
+import com.vitja.memento.CommandOriginator;
 import javafx.scene.image.Image;
 import org.apache.log4j.Logger;
 
@@ -14,10 +17,6 @@ import java.util.Stack;
  * Created by Viktor on 26.09.2016.
  */
 public class ImageController {
-    public final static Stack<Command> commandStack = new Stack<>();
-
-    final static Logger logger = Logger.getLogger(ImageController.class);
-
     private static final ArrayList<String> availableFormats = new ArrayList<>(Arrays.asList("jpg", "gif", "png", "bmp", "wbmp"));
 
     public static ArrayList<String> getAvailableFormats() {
@@ -28,6 +27,8 @@ public class ImageController {
     }
 
     private State currentState;
+
+    private CommandOriginator commandOriginator = new CommandOriginator();
 
     private File imageFile;
 
@@ -60,7 +61,6 @@ public class ImageController {
 
     public void setImage(File file) throws MalformedURLException {
         this.image = new Image(file.toURI().toURL().toString());
-        //logger.info(file.toURI().toURL().toString());
     }
 
     public File getImageFile() {
@@ -78,12 +78,15 @@ public class ImageController {
         }
     }
 
+    /*
+    public final static CareTaker CARE_TAKER = new CareTaker();
+
     public void reverseAction(){
-        if(!commandStack.isEmpty()){
-            commandStack.pop();
+        if(!CARE_TAKER.isEmpty()){
+            commandOriginator.executeMemento(CARE_TAKER.getAndRemoveLast());
         }
-        if(!commandStack.isEmpty()){
-            commandStack.peek().execute();
+        if(!CARE_TAKER.isEmpty()){
+            commandOriginator.executeMemento(CARE_TAKER.getLast());
         }
-    }
+    }*/
 }

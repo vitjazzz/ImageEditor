@@ -1,13 +1,16 @@
 package com.vitja.states;
 
-import com.vitja.ImageController;
-import com.vitja.State;
+import com.vitja.composite.CompositeCommand;
+import com.vitja.controllers.ImageController;
 import com.vitja.commands.ResizeImageCommand;
+import com.vitja.memento.CommandOriginator;
+import com.vitja.memento.Memento;
 import javafx.event.EventHandler;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
+
+import java.util.Stack;
 
 /**
  * Created by Viktor on 27.09.2016.
@@ -19,9 +22,13 @@ public class ResizeState implements State {
 
     private EventHandler<? super MouseEvent> mouseMovedHandler;
 
-    public ResizeState(ScrollPane scrollPane, ImageView imageView){
+    private CompositeCommand compositeCommand;
+
+    public ResizeState(ScrollPane scrollPane, ImageView imageView, CompositeCommand compositeCommand){
+        mouseMovedHandler = event -> {};
         this.scrollPane = scrollPane;
         this.imageView = imageView;
+        this.compositeCommand = compositeCommand;
         initializeEvents();
     }
 
@@ -29,9 +36,18 @@ public class ResizeState implements State {
     public void initializeEvents() {
         if(scrollPane != null && imageView != null){
             mouseMovedHandler = event -> {
+                Stack<CompositeCommand> commands = compositeCommand.getEditCommands();
+                /*if(commands.isEmpty()){
+                    MouseEvent tempMouseEvent = new MouseEvent(null, imageView.getImage().getWidth(), imageView.getImage().getHeight(), 0, 0, null, 1, true, true, true, true, true, true, true, true, true, true, null);
+                    commands.add(new CompositeCommand(new ResizeImageCommand(imageView, tempMouseEvent)));
+                }*/
+
+                commands.add(new CompositeCommand(new ResizeImageCommand(imageView, event)));
+
                 ResizeImageCommand resizeImageCommand = new ResizeImageCommand(imageView, event);
-                resizeImageCommand.execute();
-                ImageController.commandStack.push(resizeImageCommand);
+                imageView = resizeImageCommand.execute();
+
+
             };
 
             scrollPane.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseMovedHandler);
@@ -40,12 +56,9 @@ public class ResizeState implements State {
 
     @Override
     public void removeStateEvents(){
-        scrollPane.removeEventHandler(MouseEvent.MOUSE_CLICKED, mouseMovedHandler);
-    }
-
-    public static void resizeImage(MouseEvent event, ImageView imageView){
-        imageView.setFitHeight(event.getY());
-        imageView.setFitWidth(event.getX());
+        if(mouseMovedHandler != null){
+            scrollPane.removeEventHandler(MouseEvent.MOUSE_CLICKED, mouseMovedHandler);
+        }
     }
 
     @Override

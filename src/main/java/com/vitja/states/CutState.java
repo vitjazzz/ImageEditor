@@ -1,14 +1,16 @@
 package com.vitja.states;
 
-import com.vitja.State;
+import com.vitja.commands.CutImageCommand;
+import com.vitja.commands.ResizeImageCommand;
+import com.vitja.composite.CompositeCommand;
 import javafx.event.EventHandler;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
+
+import java.util.Stack;
 
 /**
  * Created by Viktor on 27.09.2016.
@@ -20,9 +22,13 @@ public class CutState implements State {
 
     private EventHandler<? super MouseEvent> mouseClickedHandler;
 
-    public CutState(ScrollPane scrollPane, ImageView imageView){
+    private CompositeCommand compositeCommand;
+
+    public CutState(ScrollPane scrollPane, ImageView imageView, CompositeCommand compositeCommand){
+        mouseClickedHandler = event -> {};
         this.scrollPane = scrollPane;
         this.imageView = imageView;
+        this.compositeCommand = compositeCommand;
         initializeEvents();
     }
 
@@ -30,11 +36,23 @@ public class CutState implements State {
     public void initializeEvents() {
         if(scrollPane != null && imageView != null){
             mouseClickedHandler = event -> {
-                if(event.getX() <= imageView.getImage().getWidth() && event.getY() <= imageView.getImage().getHeight()){
-                    PixelReader pixelReader = imageView.getImage().getPixelReader();
-                    WritableImage writableImage = new WritableImage(pixelReader, 0, 0, Double.valueOf(event.getX()).intValue() , Double.valueOf(event.getY()).intValue());
-                    imageView = new ImageView(writableImage);
-                }
+                // coeficient = imageView.width / image.width
+                // cutWidth(0, event.getX() / coeficient
+
+                Stack<CompositeCommand> commands = compositeCommand.getEditCommands();
+
+                commands.add(new CompositeCommand(new CutImageCommand(imageView, event)));
+
+                /*if(commands.isEmpty()){
+                    MouseEvent tempMouseEvent = new MouseEvent(null, imageView.getImage().getWidth(),
+                            imageView.getImage().getHeight(),
+                            0, 0, null, 1, true, true, true, true, true, true, true, true, true, true, null);
+                    commands.add(new CompositeCommand(new CutImageCommand(imageView, tempMouseEvent)));
+                }*/
+
+                CutImageCommand cutImageCommand = new CutImageCommand(imageView, event);
+                imageView = cutImageCommand.execute();
+
             };
 
             scrollPane.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseClickedHandler);

@@ -13,7 +13,12 @@ public class RotateImageCommand implements Command {
     }
 
     @Override
-    public void execute() {
+    public ImageView execute() {
+        return new ImageView();
+    }
 
+    @Override
+    public ImageView getInitialImageView() {
+        return null;
     }
 }

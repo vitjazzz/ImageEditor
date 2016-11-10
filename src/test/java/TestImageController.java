@@ -1,4 +1,4 @@
-import com.vitja.ImageController;
+import com.vitja.controllers.ImageController;
 
 import org.junit.Before;
 import org.junit.Test;

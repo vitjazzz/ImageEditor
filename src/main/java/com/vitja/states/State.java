@@ -1,4 +1,4 @@
-package com.vitja;
+package com.vitja.states;
 
 import com.vitja.forms.Controller;
 import javafx.scene.control.ScrollPane;

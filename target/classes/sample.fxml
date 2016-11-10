@@ -11,7 +11,10 @@
 <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="940.0" prefWidth="1224.0" styleClass="background" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.vitja.forms.Controller">
    <children>
       <Button fx:id="chooseBtn" layoutX="55.0" layoutY="49.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Choose image" />
-      <ScrollPane fx:id="mainImagePane" layoutX="55.0" layoutY="101.0" prefHeight="805.0" prefWidth="1120.0" style="-fx-background-color: transparent;" styleClass="background" />
+      <ScrollPane fx:id="mainImagePane" layoutX="55.0" layoutY="101.0" prefHeight="805.0" prefWidth="1120.0" style="-fx-background-color: transparent;" styleClass="background">
+         <content>
+            <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="200.0" />
+         </content></ScrollPane>
       <ToolBar layoutX="212.0" layoutY="46.0" prefHeight="47.0" prefWidth="373.0" styleClass="background" stylesheets="@DarkTheme.css">
         <items>
           <Button fx:id="resizeBtn" mnemonicParsing="false" text="resize" />
@@ -22,5 +25,6 @@
       </ToolBar>
       <Button fx:id="saveBtn" layoutX="1045.0" layoutY="52.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Save" />
       <Button fx:id="saveAsBtn" layoutX="909.0" layoutY="52.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="124.0" text="Save as..." />
+      <TextField fx:id="textField" layoutX="615.0" layoutY="37.0" />
    </children>
 </AnchorPane>
