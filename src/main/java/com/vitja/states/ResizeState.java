@@ -3,6 +3,7 @@ package com.vitja.states;
 import com.vitja.composite.CompositeCommand;
 import com.vitja.controllers.ImageController;
 import com.vitja.commands.ResizeImageCommand;
+import com.vitja.facade.FacadeImageHelper;
 import com.vitja.memento.CommandOriginator;
 import com.vitja.memento.Memento;
 import javafx.event.EventHandler;
@@ -24,11 +25,14 @@ public class ResizeState implements State {
 
     private CompositeCommand compositeCommand;
 
-    public ResizeState(ScrollPane scrollPane, ImageView imageView, CompositeCommand compositeCommand){
+    private FacadeImageHelper facadeImageHelper;
+
+    public ResizeState(ScrollPane scrollPane, ImageView imageView, CompositeCommand compositeCommand, FacadeImageHelper facadeImageHelper){
         mouseMovedHandler = event -> {};
         this.scrollPane = scrollPane;
         this.imageView = imageView;
         this.compositeCommand = compositeCommand;
+        this.facadeImageHelper = facadeImageHelper;
         initializeEvents();
     }
 
@@ -42,9 +46,9 @@ public class ResizeState implements State {
                     commands.add(new CompositeCommand(new ResizeImageCommand(imageView, tempMouseEvent)));
                 }*/
 
-                commands.add(new CompositeCommand(new ResizeImageCommand(imageView, event)));
+                commands.add(new CompositeCommand(new ResizeImageCommand(imageView, event, facadeImageHelper)));
 
-                ResizeImageCommand resizeImageCommand = new ResizeImageCommand(imageView, event);
+                ResizeImageCommand resizeImageCommand = new ResizeImageCommand(imageView, event, facadeImageHelper);
                 imageView = resizeImageCommand.execute();
 
 

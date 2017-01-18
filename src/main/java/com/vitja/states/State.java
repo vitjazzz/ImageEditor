@@ -1,6 +1,6 @@
 package com.vitja.states;
 
-import com.vitja.forms.Controller;
+import com.vitja.forms.MainWindowController;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import org.apache.log4j.Logger;
@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
  * Created by Viktor on 22.09.2016.
  */
 public interface State{
-    final static Logger logger = Logger.getLogger(Controller.class);
+    final static Logger logger = Logger.getLogger(MainWindowController.class);
 
     void initializeEvents();
 

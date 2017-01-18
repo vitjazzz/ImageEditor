@@ -31,6 +31,10 @@ public class CompositeCommand {
         return name;
     }
 
+    public void addCommand(CompositeCommand compositeCommand){
+        editCommands.push(compositeCommand);
+    }
+
     public void setName(String name) {
         this.name = name;
     }

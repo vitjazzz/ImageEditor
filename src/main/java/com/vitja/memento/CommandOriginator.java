@@ -11,15 +11,15 @@ public class CommandOriginator {
     public CommandOriginator() {
     }
 
-    public CommandOriginator(Command currentCommand) {
+    public CommandOriginator(Command currentCommand){
         this.currentCommand = currentCommand;
     }
 
-    public void restoreFromMemento(Memento memento) {
+    public void restoreFromMemento(Memento memento){
         currentCommand = memento.getCommand();
     }
 
-    public Memento saveToMemento() {
+    public Memento saveToMemento(){
         return new Memento(currentCommand);
     }
 

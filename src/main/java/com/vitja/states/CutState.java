@@ -3,6 +3,7 @@ package com.vitja.states;
 import com.vitja.commands.CutImageCommand;
 import com.vitja.commands.ResizeImageCommand;
 import com.vitja.composite.CompositeCommand;
+import com.vitja.facade.FacadeImageHelper;
 import javafx.event.EventHandler;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
@@ -24,11 +25,14 @@ public class CutState implements State {
 
     private CompositeCommand compositeCommand;
 
-    public CutState(ScrollPane scrollPane, ImageView imageView, CompositeCommand compositeCommand){
+    private FacadeImageHelper facadeImageHelper;
+
+    public CutState(ScrollPane scrollPane, ImageView imageView, CompositeCommand compositeCommand, FacadeImageHelper facadeImageHelper){
         mouseClickedHandler = event -> {};
         this.scrollPane = scrollPane;
         this.imageView = imageView;
         this.compositeCommand = compositeCommand;
+        this.facadeImageHelper = facadeImageHelper;
         initializeEvents();
     }
 
@@ -41,7 +45,7 @@ public class CutState implements State {
 
                 Stack<CompositeCommand> commands = compositeCommand.getEditCommands();
 
-                commands.add(new CompositeCommand(new CutImageCommand(imageView, event)));
+                commands.add(new CompositeCommand(new CutImageCommand(imageView, event, facadeImageHelper)));
 
                 /*if(commands.isEmpty()){
                     MouseEvent tempMouseEvent = new MouseEvent(null, imageView.getImage().getWidth(),
@@ -50,7 +54,7 @@ public class CutState implements State {
                     commands.add(new CompositeCommand(new CutImageCommand(imageView, tempMouseEvent)));
                 }*/
 
-                CutImageCommand cutImageCommand = new CutImageCommand(imageView, event);
+                CutImageCommand cutImageCommand = new CutImageCommand(imageView, event, facadeImageHelper);
                 imageView = cutImageCommand.execute();
 
             };

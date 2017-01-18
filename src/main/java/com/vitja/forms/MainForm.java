@@ -4,9 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -17,13 +15,13 @@ public class MainForm extends Application {
         launch(args);
     }
 
-    private Controller controller;
+    private MainWindowController mainWindowController;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("sample.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("mainWindow.fxml"));
         Parent root = loader.load();
-        controller = loader.getController();
+        mainWindowController = loader.getController();
 
         primaryStage.setTitle("Image Editor");
         primaryStage.setScene(new Scene(root, 1224, 940));
@@ -36,8 +34,8 @@ public class MainForm extends Application {
 
     @Override
     public void stop() throws Exception {
-        if(controller != null){
-            controller.closeConnection();
+        if(mainWindowController != null){
+            mainWindowController.getFacadeImageHelper().closeConnection();
         }
     }
 }
